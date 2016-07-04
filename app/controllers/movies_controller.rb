@@ -1,7 +1,7 @@
 class MoviesController < ApplicationController
 
   def movie_params
-    params.require(:movie).permit(:title, :rating, :description, :release_date)
+    params.require(:movie).permit(:title, :rating, :description, :release_date, :order_by)
   end
 
   def show
@@ -11,7 +11,9 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
+    order_by = params[:order_by]
+    instance_variable_set("@#{order_by}_header", 'hilite')
+    @movies = Movie.all.order(order_by)
   end
 
   def new
