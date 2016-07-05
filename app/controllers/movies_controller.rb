@@ -11,9 +11,16 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = Movie.all_ratings
+    if params[:ratings]
+      @selected_ratings = params[:ratings].keys
+    else
+      @selected_ratings = @all_ratings
+    end
     order_by = params[:order_by]
     instance_variable_set("@#{order_by}_header", 'hilite')
-    @movies = Movie.all.order(order_by)
+    @movies = Movie.where({ rating: @selected_ratings }).order(order_by)
+    # @movies = Movie.all.order(order_by)
   end
 
   def new
