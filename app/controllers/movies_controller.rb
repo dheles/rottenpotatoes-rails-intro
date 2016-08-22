@@ -12,14 +12,20 @@ class MoviesController < ApplicationController
 
   def index
     @all_ratings = Movie.all_ratings
-    if params[:ratings]
-      @selected_ratings = params[:ratings].keys
+    if params[:ratings] || session[:ratings]
+      @selected_ratings = params[:ratings] || session[:ratings]
     else
-      @selected_ratings = @all_ratings
+      @selected_ratings = Hash[@all_ratings.map {|rating| [rating, rating]}]
     end
-    order_by = params[:order_by]
+    order_by = params[:order_by] || session[:order_by]
     instance_variable_set("@#{order_by}_header", 'hilite')
-    @movies = Movie.where({ rating: @selected_ratings }).order(order_by)
+
+    if params[:order_by] != session[:order_by] or params[:ratings] != session[:ratings]
+      session[:order_by] = order_by
+      session[:ratings] = @selected_ratings
+      redirect_to :order_by => order_by, :ratings => @selected_ratings and return
+    end
+    @movies = Movie.where(rating: @selected_ratings.keys).order(order_by)
     # @movies = Movie.all.order(order_by)
   end
 
